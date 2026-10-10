@@ -1,0 +1,40 @@
+# Paper ablation: LCAT×2 → C3k2×2
+# Removes global self-attention from P5 backbone, reverts to local convolution
+# Purpose: validate LCAT's contribution to global dependency modeling
+
+nc: 5
+scales:
+  n: [0.50, 0.25, 1024]
+
+backbone:
+  - [-1, 1, Conv, [64, 3, 2]]                          # 0  P1/2
+  - [-1, 1, Conv, [128, 3, 2]]                          # 1  P2/4
+  - [-1, 2, C3k2, [256, False, 0.25]]                   # 2
+  - [-1, 1, Conv, [256, 3, 2]]                          # 3  P3/8
+  - [-1, 2, C3k2, [512, False, 0.25]]                   # 4
+  - [-1, 1, Conv, [512, 3, 2]]                          # 5  P4/16
+  - [-1, 2, C3k2, [512, True]]                          # 6
+  - [-1, 1, Conv, [1024, 3, 2]]                         # 7  P5/32
+  - [-1, 2, C3k2, [1024, True]]                         # 8  C3k2 (was LCAT#1)
+  - [-1, 1, SPPF, [1024, 5]]                            # 9
+
+head:
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]          # 10
+  - [[-1, 6], 1, Concat, [1]]                            # 11 cat P4 backbone
+  - [-1, 2, C3k2, [512, False]]                         # 12 FPN P4
+  - [-1, 1, SM_block_v2a, [512]]                         # 13 SM#1 FPN P4
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]          # 14
+  - [[-1, 4], 1, Concat, [1]]                            # 15 cat P3 backbone
+  - [-1, 2, C3k2, [256, False]]                         # 16 FPN P3
+  - [-1, 1, SM_block_v2a, [256]]                         # 17 SM#2 FPN P3
+
+  - [-1, 1, Conv, [256, 3, 2]]                          # 18 PAN P4 downsample
+  - [[-1, 13], 1, Concat, [1]]                          # 19 cat SM-enhanced FPN P4
+  - [-1, 2, MSBlock, [512, [1, 5, 7], 1.0, 2.0, 1, False, 3, 3]]  # 20 MS#1 PAN P4
+
+  - [-1, 1, Conv, [512, 3, 2]]                          # 21 PAN P5 downsample
+  - [[-1, 9], 1, Concat, [1]]                           # 22 cat P5 SPPF
+  - [-1, 2, MSBlock, [1024, [1, 7, 9], 1.0, 2.0, 1, False, 3, 3]] # 23 MS#2 PAN P5
+
+  - [[17, 20, 23], 1, Detect, [nc]]

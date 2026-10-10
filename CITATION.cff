@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use LCD-YOLO, please cite the associated paper."
+title: "LCD-YOLO: A lightweight YOLOv11 model for small object detection under complex conditions in construction sites"
+type: software
+authors:
+  - family-names: Wang
+    given-names: Zhaoguo
+  - family-names: Tang
+    given-names: Haozhe
+  - family-names: Lin
+    given-names: Tianxiang
+version: 1.0.0
+date-released: 2026-10-10
+license: AGPL-3.0-or-later

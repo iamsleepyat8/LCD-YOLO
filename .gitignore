@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Local configuration and credentials
+.env
+.env.*
+*.key
+*.pem
+
+# Datasets, runs, and generated artifacts
+/data/
+/dataset/
+/datasets/
+/runs/
+/outputs/
+/.smoke/
+*.cache
+*.pt
+*.pth
+*.onnx
+*.engine
+*.torchscript
+
+# Editors and operating systems
+.DS_Store
+*.swp
+.idea/
+.vscode/
